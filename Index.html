@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProxiSpeak Voice Login</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #111827, #4338ca);
+    color: white;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+    text-align: center;
+    color: #a78bfa;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #cbd5e1;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    background: #111827;
+    color: white;
+}
+
+input:focus {
+    outline: 2px solid #a78bfa;
+}
+
+button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #7c3aed;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #6d28d9;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.login-button {
+    width: 100%;
+}
+
+.voice-panel {
+    margin-top: 24px;
+    padding: 16px;
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 12px;
+}
+
+.voice-panel h2 {
+    color: #c4b5fd;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.voice-panel p {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.voice-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.voice-buttons button {
+    flex: 1;
+}
+
+.secondary {
+    background: #334155;
+}
+
+#voiceStatus,
+#message {
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+#voiceStatus {
+    color: #c4b5fd;
+}
+
+#message {
+    color: #a7f3d0;
+    text-align: center;
+}
+
+.footer {
+    margin-top: 22px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+@media (max-width: 380px) {
+    .login-box {
+        padding: 22px;
+    }
+
+    .voice-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h1>ProxiSpeak</h1>
+    <p class="subtitle">Your Virtual Office Starts Here</p>
+
+    <form id="loginForm">
+
+        <label for="email">Email Address</label>
+        <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            autocomplete="username"
+            required
+        >
+
+        <label for="password">Password</label>
+        <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+        >
+
+        <button class="login-button" type="submit">
+            Sign In
+        </button>
+
+    </form>
+
+    <!-- Voice features on the same page -->
+    <section class="voice-panel">
+
+        <h2>🎙️ Voice Assistant</h2>
+
+        <p>
+            Speak your email address or listen to the
+            ProxiSpeak welcome message.
+        </p>
+
+        <div class="voice-buttons">
+            <button type="button" id="dictateBtn">
+                🎤 Voice Input
+            </button>
+
+            <button type="button" class="secondary" id="speakBtn">
+                🔊 Speak
+            </button>
+        </div>
+
+        <p id="voiceStatus" aria-live="polite">
+            Voice assistant is ready.
+        </p>
+
+    </section>
+
+    <p id="message" aria-live="polite"></p>
+
+    <div class="footer">
+        ProxiSpeak &copy; 2026 — Team Collaboration Platform
+    </div>
+
+</div>
+
+<script>
+// Login form
+const loginForm = document.getElementById("loginForm");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const message = document.getElementById("message");
+
+loginForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    if (!loginForm.reportValidity()) return;
+
+    message.textContent =
+        "Login form validated. Connect the backend to authenticate.";
+
+    speakText("Welcome to ProxiSpeak. Please connect the backend to sign in.");
+});
+
+// Voice output: Text-to-Speech
+const speakBtn = document.getElementById("speakBtn");
+const voiceStatus = document.getElementById("voiceStatus");
+
+function speakText(text) {
+    if (!("speechSynthesis" in window)) {
+        voiceStatus.textContent =
+            "Voice output is not supported in this browser.";
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.rate = 1;
+
+    speech.onstart = () => {
+        voiceStatus.textContent = "Speaking...";
+    };
+
+    speech.onend = () => {
+        voiceStatus.textContent = "Speech completed.";
+    };
+
+    speech.onerror = () => {
+        voiceStatus.textContent = "Unable to play the voice message.";
+    };
+
+    window.speechSynthesis.speak(speech);
+}
+
+speakBtn.addEventListener("click", function() {
+    speakText("Welcome to ProxiSpeak. Your virtual office starts here.");
+});
+
+// Voice input: Speech Recognition
+const dictateBtn = document.getElementById("dictateBtn");
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    dictateBtn.addEventListener("click", function() {
+        try {
+            recognition.start();
+        } catch (error) {
+            voiceStatus.textContent =
+                "Voice recognition is already active. Please wait.";
+        }
+    });
+
+    recognition.onstart = function() {
+        dictateBtn.disabled = true;
+        voiceStatus.textContent =
+            "Listening... Speak your email address.";
+    };
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript.trim();
+
+        const email = transcript
+            .replace(/\s+at\s+/gi, "@")
+            .replace(/\s+dot\s+/gi, ".")
+            .replace(/\s+underscore\s+/gi, "_")
+            .replace(/\s+dash\s+/gi, "-")
+            .replace(/\s+/g, "");
+
+        emailInput.value = email;
+
+        voiceStatus.textContent =
+            "Voice captured. Check your email address before signing in.";
+    };
+
+    recognition.onerror = function(event) {
+        voiceStatus.textContent =
+            event.error === "not-allowed"
+                ? "Microphone permission denied. Allow microphone access."
+                : "Voice input failed. You can type your email instead.";
+    };
+
+    recognition.onend = function() {
+        dictateBtn.disabled = false;
+    };
+
+} else {
+    dictateBtn.disabled = true;
+
+    voiceStatus.textContent =
+        "Voice input is unavailable in this browser.";
+}
+</script>
+
+</body>
+  </html>
